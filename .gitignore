@@ -1,0 +1,23 @@
+# 忽略 .idea 文件夹
+.idea/
+
+# 忽略 __pycache__ 文件夹
+__pycache__/
+
+# 忽略 .pyc 文件
+*.pyc
+
+# 忽略 pytest 的缓存文件
+.pytest_cache/
+
+# 忽略数据集文件
+tests/data/
+
+# 忽略特定类型文件（如中间文件）
+*.tar.gz
+*.png
+*.log
+
+# 忽略 data 文件夹内容，但保留文件夹本身
+data/*
+!data/.gitkeep
