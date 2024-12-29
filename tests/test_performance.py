@@ -64,6 +64,6 @@ def test_model_performance():
 
     # 确保性能在合理范围内
     assert avg_inference_time < 0.01, "Inference time is too high!"
-    # assert noisy_time < 0.02, "Inference time with noise is too high!"
-    # assert blurred_time < 0.02, "Inference time with blur is too high!"
-    # assert flipped_time < 0.02, "Inference time with flips is too high!"
+    assert noisy_time < 0.02, "Inference time with noise is too high!"
+    assert blurred_time < 0.02, "Inference time with blur is too high!"
+    assert flipped_time < 0.02, "Inference time with flips is too high!"
