@@ -5,9 +5,12 @@ from src.test_utils import evaluate_model  # 假设把 `evaluate_model` 放在 `
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import os  # 新增：用于检查文件路径
+from src.model import save_model, load_model  # 新增：调用保存与加载模型的方法
 
 def test_robustness_with_noise():
     # 加载数据
+    model_path = "./data/resnet_model.pth"
     train_loader, test_loader = load_cifar10(batch_size=32)
 
     # 初始化模型
@@ -15,9 +18,22 @@ def test_robustness_with_noise():
 
     # 训练模型
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = train_model(model, train_loader, epochs=15, lr=0.001, device=device)
 
+
+    # model = train_model(model, train_loader, epochs=5, lr=0.001, device=device)
+    if os.path.exists(model_path):
+        print(f"Loading model from {model_path}...")
+        model = load_model(model, path=model_path, device=device)
+
+    else:
+        print("Training model...")
+        model = train_model(model, train_loader, epochs=5, lr=0.001, device=device)
+        save_model(model, path=model_path)  # 保存模型
+        print(f"Model saved to {model_path}.")
     # 原始数据准确率
+
+
+
     original_accuracy = evaluate_model(model, test_loader, device)
 
     # 获取测试图像和标签
@@ -25,6 +41,7 @@ def test_robustness_with_noise():
 
     # 添加噪声并计算准确率
     noisy_images = add_noise(test_images.numpy(), noise_level=0.1, dtype=np.float32)
+
 
 # 1    至下一个"# 1"为添加多种变异的修改, 原来只有添加噪点一种,其实现在本部分下面
     """
@@ -57,6 +74,8 @@ def test_robustness_with_noise():
         accuracy = evaluate_model(model, loader, device)
         print(f"{name} Accuracy: {accuracy * 100:.2f}%")
 
+
+
     # 返回测试结果
     return {
         "Original": original_accuracy,
@@ -65,21 +84,6 @@ def test_robustness_with_noise():
         "Flip": loaders["Flip"],
         "Rotate": loaders["Rotate"],}
 # 1
-
-    # # 创建 DataLoader 包装 noisy_images
-    # noisy_dataset = torch.utils.data.TensorDataset(
-    #     torch.tensor(noisy_images), torch.tensor(test_labels)
-    # )
-    # noisy_loader = torch.utils.data.DataLoader(noisy_dataset, batch_size=32)
-    #
-    # # 噪声数据准确率
-    # noise_accuracy = evaluate_model(model, noisy_loader, device)
-    # # 打印测试结果
-    # print(f"Original Accuracy: {original_accuracy * 100:.2f}%")
-    # print(f"Noise Accuracy: {noise_accuracy * 100:.2f}%")
-    #
-    # # 返回测试准确率（可选）
-    # return original_accuracy, noise_accuracy
 
 def visualize_images(original_images, noisy_images, labels, save_path):
     """

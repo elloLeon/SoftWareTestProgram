@@ -1,5 +1,7 @@
+import os
+
 from src.data import load_cifar10
-from src.model import load_resnet, train_model
+from src.model import load_resnet, train_model, load_model, save_model
 from src.transforms import add_noise, add_blur, add_flip,add_rotation
 from src.test_utils import evaluate_accuracy
 import torch
@@ -16,7 +18,20 @@ def test_model_accuracy_with_variations():
     # 加载并训练模型
     model = load_resnet()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = train_model(model, train_loader, epochs=5, lr=0.001, device=device)
+    # model = train_model(model, train_loader, epochs=10, lr=0.001, device=device)
+
+    model_path = "./data/resnet_model.pth"
+    if os.path.exists(model_path):
+        print(f"Loading model from {model_path}...")
+        model = load_model(model, path=model_path, device=device)
+
+    else:
+        print("Training model...")
+        model = train_model(model, train_loader, epochs=3, lr=0.001, device=device)
+        save_model(model, path=model_path)  # 保存模型
+        print(f"Model saved to {model_path}.")
+
+
 
     # 测试原始数据的准确性
     original_accuracy = evaluate_accuracy(model, test_loader, device)
