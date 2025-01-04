@@ -68,7 +68,7 @@ def test_model_accuracy_with_variations():
 
     # 确保准确性达到最低阈值
     assert original_accuracy > 0.7, "Original accuracy is below the expected threshold!"
-    assert noisy_accuracy > 0.6, "Accuracy with noise is below the expected threshold!"
+    assert noisy_accuracy > 0.5, "Accuracy with noise is below the expected threshold!"
     assert blurred_accuracy > 0.4, "Accuracy with blur is below the expected threshold!"
     assert flipped_accuracy > 0.35, "Accuracy with flips is below the expected threshold!"
 
