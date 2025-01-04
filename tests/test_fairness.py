@@ -1,5 +1,8 @@
 import os
 
+import pandas as pd
+from matplotlib import pyplot as plt
+
 from src.data import load_cifar10, load_cifar10_fairness
 from src.model import load_resnet, train_model, load_model, save_model
 from src.test_utils import evaluate_fairness
@@ -48,3 +51,21 @@ def test_model_fairness():
     # 确保模型对每个类别的 F1 分数都高于 0.5
     for category, report in fairness_reports.items():
         assert report["macro avg"]["f1-score"] > 0.5, f"Fairness issue detected for category {category}!"
+
+        # 可视化公平性报告
+    metrics = ['precision', 'recall', 'f1-score']
+    categories = list(fairness_reports.keys())
+    data = {metric: [report['macro avg'][metric] for report in fairness_reports.values()] for metric in metrics}
+
+    # 创建DataFrame以方便绘图
+    df = pd.DataFrame(data, index=categories)
+
+    # 绘制分组条形图
+    df.plot(kind='bar', figsize=(10, 6), alpha=0.7)
+    plt.title('Fairness Metrics by Sensitive Category')
+    plt.xlabel('Sensitive Category')
+    plt.ylabel('Score')
+    plt.legend(title='Metric')
+    plt.tight_layout()
+    plt.savefig('chart/fairness')  # 保存公平性指标图
+    plt.show()
