@@ -90,7 +90,7 @@ def plot_inference_times(avg_inference_time, noisy_time, blurred_time, flipped_t
         plt.text(i, time + 0.001, f'{time:.6f}', ha='center', fontsize=10)
 
     # 保存图表
-    output_path = './inference_times_comparison.png'
+    output_path = './chart/inference_times_comparison.png'
     plt.tight_layout()
     plt.savefig(output_path)
     plt.close()

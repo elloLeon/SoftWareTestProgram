@@ -66,11 +66,11 @@ def test_model_accuracy_with_variations():
     flipped_accuracy = evaluate_accuracy(model, flipped_loader, device)
     print(f"Test Accuracy with Flips: {flipped_accuracy * 100:.2f}%")
 
-    # # 确保准确性达到最低阈值
-    # assert original_accuracy > 0.7, "Original accuracy is below the expected threshold!"
-    # assert noisy_accuracy > 0.5, "Accuracy with noise is below the expected threshold!"
-    # assert blurred_accuracy > 0.5, "Accuracy with blur is below the expected threshold!"
-    # assert flipped_accuracy > 0.5, "Accuracy with flips is below the expected threshold!"
+    # 确保准确性达到最低阈值
+    assert original_accuracy > 0.7, "Original accuracy is below the expected threshold!"
+    assert noisy_accuracy > 0.6, "Accuracy with noise is below the expected threshold!"
+    assert blurred_accuracy > 0.4, "Accuracy with blur is below the expected threshold!"
+    assert flipped_accuracy > 0.35, "Accuracy with flips is below the expected threshold!"
 
     # 创建柱状图来展示不同条件下的准确率
     conditions = ['Original', 'Noise', 'Blur', 'Flip']
@@ -93,4 +93,4 @@ def test_model_accuracy_with_variations():
 
     # 展示或保存图表
     plt.tight_layout()
-    plt.savefig('chart/accuracy.png')  # 如果你想要保存图表到文件，请取消注释此行
+    plt.savefig('chart/accuracy_accuracy.png')  # 如果你想要保存图表到文件，请取消注释此行

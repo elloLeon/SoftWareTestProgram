@@ -21,7 +21,7 @@ def train_or_load_model():
 
         # 继续训练一定轮数
         print("Continuing training for additional epochs...")
-        model = train_model(model, train_loader, epochs=2, lr=0.001, device=device)
+        model = train_model(model, train_loader, epochs=3, lr=0.001, device=device)
     else:
         # 如果模型不存在，进行完整训练
         print("Training model from scratch...")

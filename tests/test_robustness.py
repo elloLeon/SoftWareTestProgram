@@ -94,7 +94,7 @@ def test_robustness_with_noise():
     print(f"Visualization saved at {visualize_save_path}")
 
     # 绘制准确率对比图
-    accuracy_save_path = os.path.join(chart_folder, "accuracy_comparison.png")
+    accuracy_save_path = os.path.join(chart_folder, "robustness_accuracy_comparison.png")
     plot_accuracy_drop(
         accuracies=accuracies,
         save_path=accuracy_save_path

@@ -33,7 +33,7 @@ def visualize_predictions_and_save(model, original_images, noisy_images, labels,
     # 保存图片到本地
     os.makedirs(save_dir, exist_ok=True)
     plt.tight_layout()
-    plt.savefig(os.path.join(save_dir, "original_and_noisy_images.png"))
+    plt.savefig(os.path.join(save_dir, "meta_original&noisy_images.png"))
     plt.close(fig)  # 关闭当前图表，避免内存溢出
 
     # 生成准确度的柱状图
@@ -44,7 +44,7 @@ def visualize_predictions_and_save(model, original_images, noisy_images, labels,
     ax.bar(["Original", "Noisy"], [original_accuracy, noisy_accuracy], color=["blue", "orange"])
     ax.set_ylabel("Accuracy")
     ax.set_title("Model Accuracy on Original vs Noisy Images")
-    plt.savefig(os.path.join(save_dir, "accuracy_comparison.png"))
+    plt.savefig(os.path.join(save_dir, "meta_accuracy_comparison.png"))
     plt.close(fig)
 
     print(f"Images and charts saved to {save_dir}")
@@ -81,10 +81,10 @@ def test_model_metamorphic():
     # 测试蜕变属性（变换前后输出一致性）
     consistency = metamorphic_test(model, test_loader, noisy_loader, device)
     print(f"Consistency between original and noisy data: {consistency * 100:.2f}%")
-    #assert consistency > 0.7, "Metamorphic testing failed: consistency too low!"
+    assert consistency > 0.6, "Metamorphic testing failed: consistency too low!"
 
     # 可视化预测结果并保存
     visualize_predictions_and_save(model, test_images, torch.tensor(noisy_images).to(device), test_labels, device)
 
-if __name__ == "__main__":
-    test_model_metamorphic()
+# if __name__ == "__main__":
+#     test_model_metamorphic()
