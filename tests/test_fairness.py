@@ -67,5 +67,5 @@ def test_model_fairness():
     plt.ylabel('Score')
     plt.legend(title='Metric')
     plt.tight_layout()
-    plt.savefig('chart/fairness')  # 保存公平性指标图
-    plt.show()
+    plt.savefig('chart/fairness_scores')  # 保存公平性指标图
+    # plt.show()

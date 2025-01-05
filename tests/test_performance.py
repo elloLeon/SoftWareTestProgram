@@ -1,5 +1,3 @@
-import os
-
 from src.data import load_cifar10
 from src.model import load_resnet, train_model, load_model, save_model
 from src.test_utils import evaluate_performance
@@ -60,10 +58,42 @@ def test_model_performance():
     flipped_time = evaluate_performance(model, flipped_loader, device)
     print(f"Average Inference Time with Flips: {flipped_time:.6f} seconds")
 
-
+    # 在你的 test_model_performance 函数中调用此函数
+    plot_inference_times(avg_inference_time, noisy_time, blurred_time, flipped_time)
 
     # 确保性能在合理范围内
     assert avg_inference_time < 0.01, "Inference time is too high!"
     assert noisy_time < 0.02, "Inference time with noise is too high!"
     assert blurred_time < 0.02, "Inference time with blur is too high!"
     assert flipped_time < 0.02, "Inference time with flips is too high!"
+
+
+import os
+import matplotlib.pyplot as plt
+
+def plot_inference_times(avg_inference_time, noisy_time, blurred_time, flipped_time):
+    # 数据
+    labels = ['Original', 'Noisy', 'Blurred', 'Flipped']
+    times = [avg_inference_time, noisy_time, blurred_time, flipped_time]
+
+    # 创建图表
+    plt.figure(figsize=(8, 6))
+    plt.bar(labels, times, color=['blue', 'orange', 'green', 'red'])
+
+    # 添加标题和标签
+    plt.title('Inference Time Comparison', fontsize=14)
+    plt.xlabel('Test Type', fontsize=12)
+    plt.ylabel('Inference Time (seconds)', fontsize=12)
+
+    # 显示数值
+    for i, time in enumerate(times):
+        plt.text(i, time + 0.001, f'{time:.6f}', ha='center', fontsize=10)
+
+    # 保存图表
+    output_path = './chart/inference_times_comparison.png'
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+
+    print(f"Plot saved to {output_path}")
+

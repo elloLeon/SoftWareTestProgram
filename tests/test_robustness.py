@@ -70,59 +70,117 @@ def test_robustness_with_noise():
     }
 
     # 测试每种变异后的准确率
+    accuracies = {"Original": original_accuracy}
     for name, loader in loaders.items():
         accuracy = evaluate_model(model, loader, device)
+        accuracies[name] = accuracy
         print(f"{name} Accuracy: {accuracy * 100:.2f}%")
 
+    # 创建 chart 文件夹
+    chart_folder = "./chart"
+    os.makedirs(chart_folder, exist_ok=True)
 
+    # 可视化原始图像与噪声图像
+    visualize_save_path = os.path.join(chart_folder, "noise_vs_original.png")
+    visualize_images(
+        original_images=test_images[:5],
+        noisy_images=noisy_images[:5],
+        blurred_images=blurred_images[:5],
+        flipped_images=flipped_images[:5],
+        rotated_images=rotated_images[:5],
+        labels=test_labels[:5],
+        save_path=visualize_save_path
+    )
+    print(f"Visualization saved at {visualize_save_path}")
+
+    # 绘制准确率对比图
+    accuracy_save_path = os.path.join(chart_folder, "robustness_accuracy_comparison.png")
+    plot_accuracy_drop(
+        accuracies=accuracies,
+        save_path=accuracy_save_path
+    )
+    print(f"Accuracy comparison saved at {accuracy_save_path}")
 
     # 返回测试结果
-    return {
-        "Original": original_accuracy,
-        "Noise": loaders["Noise"],
-        "Blur": loaders["Blur"],
-        "Flip": loaders["Flip"],
-        "Rotate": loaders["Rotate"],}
+    return accuracies
+
+
 # 1
 
-def visualize_images(original_images, noisy_images, labels, save_path):
+def visualize_images(original_images, noisy_images, blurred_images, flipped_images, rotated_images, labels, save_path):
     """
     显示并保存原始图像与噪声图像的对比。
     """
-    fig, axes = plt.subplots(2, len(original_images), figsize=(15, 5))
+    fig, axes = plt.subplots(5, len(original_images), figsize=(15, 5))
     for i in range(len(original_images)):
         # 将 PyTorch tensor 转换为 NumPy 数组，并转置为 (H, W, C) 以适应 plt.imshow
-        original_image_np = original_images[i].numpy().transpose(1, 2, 0)
-        noisy_image_np = noisy_images[i].transpose(1, 2, 0)
+        original_image_np = original_images[i].numpy().transpose(1, 2, 0)  # (3, 32, 32) -> (32, 32, 3)
+        noisy_image_np = noisy_images[i].transpose(1, 2, 0)  # (3, 32, 32) -> (32, 32, 3)
+        blurred_image_np = blurred_images[i].transpose(1, 2, 0)
+        flipped_image_np = flipped_images[i].transpose(1, 2, 0)
+        rotated_image_np = rotated_images[i].transpose(1, 2, 0)
 
         # 归一化图像数据到 [0, 1] 范围内
-        original_image_normalized = (original_image_np.transpose(1, 2, 0) - original_image_np.min()) / (original_image_np.max() - original_image_np.min())
-        noisy_image_normalized = (noisy_image_np.transpose(1, 2, 0) - noisy_image_np.min()) / (noisy_image_np.max() - noisy_image_np.min())
+        original_image_normalized = (original_image_np - original_image_np.min()) / (original_image_np.max() - original_image_np.min())
+        noisy_image_normalized = (noisy_image_np - noisy_image_np.min()) / (noisy_image_np.max() - noisy_image_np.min())
+        blurred_image_normalized = (blurred_image_np - blurred_image_np.min()) / (blurred_image_np.max() - blurred_image_np.min())
+        flipped_image_normalized = (flipped_image_np - flipped_image_np.min()) / (flipped_image_np.max() - flipped_image_np.min())
+        rotated_image_normalized = (rotated_image_np - rotated_image_np.min()) / (rotated_image_np.max() - rotated_image_np.min())
 
         # 显示原始图像
         axes[0, i].imshow(original_image_normalized)
-        axes[0, i].set_title(f"Original: {labels[i]}")
+        axes[0, i].set_title(f"Original: {labels[i].item()}")
         axes[0, i].axis("off")
 
-        # 显示噪声图像
-        axes[1, i].imshow(noisy_image_normalized)
-        axes[1, i].set_title("Noisy")
+        # 显示模糊图像
+        axes[1, i].imshow(blurred_image_normalized)
+        axes[1, i].set_title(f"Blurred: {labels[i].item()}")
         axes[1, i].axis("off")
+
+        # 显示水平翻转图像
+        axes[2, i].imshow(flipped_image_normalized)
+        axes[2, i].set_title(f"Flipped: {labels[i].item()}")
+        axes[2, i].axis("off")
+
+        # 显示旋转图像
+        axes[3, i].imshow(rotated_image_normalized)
+        axes[3, i].set_title(f"Rotated: {labels[i].item()}")
+        axes[3, i].axis("off")
+
+        # 显示噪声图像
+        axes[4, i].imshow(noisy_image_normalized)
+        axes[4, i].set_title("Noisy")
+        axes[4, i].axis("off")
+
 
     plt.tight_layout()
     plt.savefig(save_path)  # 保存到文件
     plt.close()  # 关闭绘图窗口
 
-def plot_accuracy_drop(original_acc, noise_acc, save_path):
+
+def plot_accuracy_drop(accuracies, save_path):
     """
-    绘制并保存变异前后数据的准确率对比图。
+    绘制并保存所有变异类型的数据准确率对比图。
+    参数：
+        accuracies (dict): 一个包含变异类型及其对应准确率的字典，例如：
+                          {"Original": 0.85, "Noise": 0.75, "Blur": 0.70, "Flip": 0.78, "Rotate": 0.72}
+        save_path (str): 保存图片的路径。
     """
-    labels = ['Original', 'Noise']
-    accuracies = [original_acc, noise_acc]
-    plt.bar(labels, accuracies, color=['blue', 'orange'])
+    labels = list(accuracies.keys())
+    values = list(accuracies.values())
+
+    # 创建柱状图
+    plt.figure(figsize=(10, 6))
+    plt.bar(labels, values, color=['blue', 'orange', 'green', 'red', 'purple'])
     plt.xlabel('Scenario')
     plt.ylabel('Accuracy')
-    plt.title('Accuracy Comparison')
+    plt.title('Accuracy Comparison Across Different Transformations')
     plt.ylim(0, 1)  # 确保显示范围在 [0, 1]
+
+    # 在柱子顶部显示准确率数值
+    for i, v in enumerate(values):
+        plt.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom')
+
+    plt.tight_layout()
     plt.savefig(save_path)  # 保存到文件
     plt.close()  # 关闭绘图窗口
